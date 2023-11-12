@@ -7,24 +7,40 @@ import {
   AiOutlineShopping,
 } from "react-icons/ai";
 import { state } from "./store";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Overlay = () => {
   const snap = useSnapshot(state);
+
+  const transition = { type: "spring", duration: 0.8 };
+  const config = {
+    initial: { x: -100, opacity: 0, transition: { ...transition, delay: 0.5 } },
+    animate: { x: 0, opacity: 1, transition: { ...transition, delay: 0 } },
+    exit: { x: -100, opacity: 0, transition: { ...transition, delay: 0 } },
+  };
+
   return (
     <div className="container">
-      <header>
+      <motion.header
+        initial={{ opacity: 0, y: -120 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", duration: 1.5, delay: 0.8 }}
+      >
         <Logo width="40" height="40" />
         <AiOutlineShopping size="3em" />
-      </header>
+      </motion.header>
 
-      {snap.intro ? <Intro /> : <Customizer />}
+      <AnimatePresence>
+        {snap.intro ? <Intro key="main" /> : <Customizer key="custom" />}
+        {/* key 속성으로 framer motion이 해당 컴포넌트가 마운트/언마운트 되었는지를 인식한다.  */}
+      </AnimatePresence>
     </div>
   );
 };
 
-const Intro = () => {
+const Intro = ({ config }) => {
   return (
-    <section key="main">
+    <motion.section key="main" {...config}>
       <div className="section--container">
         <div>
           <h1>LET'S DO IT</h1>
@@ -47,15 +63,15 @@ const Intro = () => {
           </button>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
-const Customizer = () => {
+const Customizer = ({ config }) => {
   const snap = useSnapshot(state);
 
   return (
-    <section key="customs">
+    <motion.section key="customs" {...config}>
       <div className="customizer">
         <div className="color-options">
           {snap.colors.map((color) => (
@@ -116,6 +132,6 @@ const Customizer = () => {
         GO BACK
         <AiOutlineArrowLeft size="1.3em" />
       </button>
-    </section>
+    </motion.section>
   );
 };
